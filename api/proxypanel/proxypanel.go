@@ -359,17 +359,13 @@ func (c *APIClient) GetNodeRule() (*[]api.DetectRule, error) {
 	}
 	ruleList := c.LocalRuleList
 	// Only support reject rule type
-	if ruleListResponse.Mode != "reject" {
-		return &ruleList, nil
-	} else {
-		for _, r := range ruleListResponse.Rules {
-			if r.Type == "reg" {
-				ruleList = append(ruleList, api.DetectRule{
-					ID:      r.ID,
-					Pattern: regexp.MustCompile(r.Pattern),
-				})
-			}
-
+	for _, r := range ruleListResponse.Rules {
+		if r.Type == "reg" {
+			ruleList = append(ruleList, api.DetectRule{
+				ID:      r.ID,
+				Mode:    ruleListResponse.Mode, // add rule mode
+				Pattern: regexp.MustCompile(r.Pattern),
+			})
 		}
 	}
 

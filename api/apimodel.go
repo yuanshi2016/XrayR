@@ -87,6 +87,7 @@ type ClientInfo struct {
 
 type DetectRule struct {
 	ID      int
+	Mode    string // add rule mode
 	Pattern *regexp.Regexp
 }
 

@@ -53,13 +53,25 @@ func (r *Manager) Detect(tag string, destination string, email string) (reject b
 	// If we have some rule for this inbound
 	if value, ok := r.InboundRule.Load(tag); ok {
 		ruleList := value.([]api.DetectRule)
+		allow := 0
 		for _, r := range ruleList {
-			if r.Pattern.Match([]byte(destination)) {
-				hitRuleID = r.ID
+			hitRuleID = r.ID
+			audit := r.Pattern.Match([]byte(destination))
+			//rule check: allow / reject
+			if r.Mode == "reject" && audit {
 				reject = true
 				break
 			}
+			if r.Mode == "allow" && audit {
+				allow++
+			}
 		}
+		if allow > 0 {
+			reject = false
+		} else {
+			reject = true
+		}
+
 		// If we hit some rule
 		if reject && hitRuleID != -1 {
 			l := strings.Split(email, "|")
